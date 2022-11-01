@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+    marca-blanca-apache:
+        container_name: marca-blanca-php-apache
+        build: ./
+        volumes:
+            - ./app:/var/www/html
+            - ./docker/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+            - ./docker/conf.d/error_reporting.ini:/usr/local/etc/php/conf.d/error_reporting.ini
+        ports:
+          - 80:80
+          - 443:443
+        depends_on:
+            -   db
+        networks:
+            - marca-blanca-net
+    db:
+        container_name: marca-blanca-mysql
+        image: mysql:5.7.40
+        restart: always
+        environment:
+            - MYSQL_ROOT_PASSWORD=%bofh#78
+            - MYSQL_PASSWORD=%luser#78
+            - MYSQL_DATABASE=afiliados_db
+            - MYSQL_USER=afil_erabiltzaile
+        volumes:
+            - dbdata:/var/lib/mysql
+            - ./mysql/database.sql:/docker-entrypoint-initdb.d/init-db.sql
+
+        command: mysqld --sql_mode="" --character-set-server=utf8mb4 --collation-server=utf8mb4_spanish_ci --init-connect='SET NAMES UTF8;' --innodb-flush-log-at-trx-commit=0
+        ports:
+            - "3306:3306"
+        networks:
+            - marca-blanca-net
+
+volumes:
+    dbdata:
+
+networks:
+    marca-blanca-net:
+        name: marca-blanca-net
